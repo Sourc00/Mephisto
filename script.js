@@ -12,7 +12,7 @@ window.addEventListener('resize', () => {
 let particles = [];
 let mouse = { x: 0, y: 0 };
 
-// Increased spawn rate for more ambient particles (every 200ms now)
+// Decreased spawn rate (every 700ms now) for fewer ambient particles
 function createAmbientParticle() {
     particles.push({
         x: Math.random() * canvas.width,
@@ -21,12 +21,12 @@ function createAmbientParticle() {
         speedX: Math.random() * 1 - 0.5,
         speedY: Math.random() * 1 - 0.5,
         color: Math.random() > 0.5 ? '#ff4500' : '#ff8c00',
-        life: 1200 + Math.random() * 600, // 3x longer life → avg ~1500 frames
+        life: 600 + Math.random() * 300, // Increased decay time → stay longer
         type: 'ambient'
     });
 }
 
-function createBurst(x, y, intensity = 10) { // Reduced intensity for fewer cursor particles
+function createBurst(x, y, intensity = 15) {
     for (let i = 0; i < intensity; i++) {
         const angle = Math.random() * Math.PI * 2;
         const speed = Math.random() * 8 + 4;
@@ -37,7 +37,7 @@ function createBurst(x, y, intensity = 10) { // Reduced intensity for fewer curs
             speedX: Math.cos(angle) * speed,
             speedY: Math.sin(angle) * speed,
             color: Math.random() > 0.3 ? '#ff4500' : '#ff2200',
-            life: 360 + Math.random() * 240, // 3x longer decay ~9-15 seconds avg
+            life: 150 + Math.random() * 100, // Longer decay for cursor particles
             type: 'burst',
             curlAngle: Math.random() * Math.PI * 2,
             curlSpeed: Math.random() * 0.08 + 0.03 // Curl wind strength
@@ -49,7 +49,7 @@ function handleInteraction(e) {
     const rect = canvas.getBoundingClientRect();
     mouse.x = e.clientX || (e.touches ? e.touches[0].clientX - rect.left : 0);
     mouse.y = e.clientY || (e.touches ? e.touches[0].clientY - rect.top : 0);
-    createBurst(mouse.x, mouse.y, 10); // Fewer for cursor trail
+    createBurst(mouse.x, mouse.y, 20);
 }
 
 window.addEventListener('mousemove', handleInteraction);
@@ -59,20 +59,20 @@ window.addEventListener('touchstart', handleInteraction, { passive: true });
 document.querySelectorAll('.social-btn, .book-section h2').forEach(el => {
     el.addEventListener('mouseenter', (e) => {
         const rect = el.getBoundingClientRect();
-        createBurst(rect.left + rect.width / 2, rect.top + rect.height / 2, 15); // Slightly reduced for buttons too
+        createBurst(rect.left + rect.width / 2, rect.top + rect.height / 2, 25);
     });
     el.addEventListener('touchstart', (e) => {
         const rect = el.getBoundingClientRect();
-        createBurst(rect.left + rect.width / 2, rect.top + rect.height / 2, 15);
+        createBurst(rect.left + rect.width / 2, rect.top + rect.height / 2, 25);
         e.preventDefault();
     });
 });
 
-// Increased ambient spawn rate → more background particles
-setInterval(createAmbientParticle, 200); // Was 500 → now more frequent
+// Further decreased spawn rate
+setInterval(createAmbientParticle, 700);
 
 function animate() {
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.15)'; // Balanced fade for clean vanishing
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.25)'; // Even stronger fade for no sticking
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     particles.forEach((p, i) => {
@@ -87,17 +87,17 @@ function animate() {
         }
 
         if (p.type === 'burst') {
-            // Curl wind force — swirling motion
+            // Curl wind force
             p.curlAngle += p.curlSpeed;
             p.speedX += Math.cos(p.curlAngle) * 0.3;
             p.speedY += Math.sin(p.curlAngle) * 0.3;
 
             // Fractal branching: Occasionally spawn children for geometric fractal effect
-            if (p.life % 80 === 0 && p.life > 150 && Math.random() > 0.5) {
-                // Spawn 2 children at +/- 45 degrees
+            if (p.life % 50 === 0 && p.life > 80 && Math.random() > 0.6) {
+                // Spawn 2 children at +/- 45 degrees from current direction
                 const childAngle1 = Math.atan2(p.speedY, p.speedX) + Math.PI / 4;
                 const childAngle2 = Math.atan2(p.speedY, p.speedX) - Math.PI / 4;
-                const childSpeed = Math.sqrt(p.speedX**2 + p.speedY**2) * 0.7;
+                const childSpeed = Math.sqrt(p.speedX**2 + p.speedY**2) * 0.7; // Slower children
                 particles.push({
                     x: p.x,
                     y: p.y,
@@ -128,7 +128,7 @@ function animate() {
         p.x += p.speedX;
         p.y += p.speedY;
         p.life--;
-        p.size *= 0.95; // Slow shrink for longer visibility
+        p.size *= 0.95; // Slower shrink for longer visibility
 
         // Wrap
         if (p.x < -20) p.x = canvas.width + 20;
@@ -136,7 +136,7 @@ function animate() {
         if (p.y < -20) p.y = canvas.height + 20;
         if (p.y > canvas.height + 20) p.y = -20;
 
-        const maxLife = p.type === 'ambient' ? 1800 : 600; // 3x longer alpha decay
+        const maxLife = p.type === 'ambient' ? 900 : 250; // Longer max for slower alpha decay
         const alpha = p.life / maxLife;
 
         if (p.life <= 0 || alpha < 0.02 || p.size <= 0.3) {
@@ -162,4 +162,3 @@ function animate() {
 }
 
 animate();
-
