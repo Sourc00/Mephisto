@@ -12,6 +12,7 @@ window.addEventListener('resize', () => {
 let particles = [];
 let mouse = { x: 0, y: 0 };
 
+// Decreased spawn rate (every 700ms now) for fewer ambient particles
 function createAmbientParticle() {
     particles.push({
         x: Math.random() * canvas.width,
@@ -20,7 +21,7 @@ function createAmbientParticle() {
         speedX: Math.random() * 1 - 0.5,
         speedY: Math.random() * 1 - 0.5,
         color: Math.random() > 0.5 ? '#ff4500' : '#ff8c00',
-        life: 400 + Math.random() * 200,
+        life: 600 + Math.random() * 300, // Increased decay time → stay longer
         type: 'ambient'
     });
 }
@@ -36,7 +37,7 @@ function createBurst(x, y, intensity = 15) {
             speedX: Math.cos(angle) * speed,
             speedY: Math.sin(angle) * speed,
             color: Math.random() > 0.3 ? '#ff4500' : '#ff2200',
-            life: 120 + Math.random() * 80, // Longer decay ~3-5 seconds
+            life: 150 + Math.random() * 100, // Longer decay for cursor particles
             type: 'burst',
             curlAngle: Math.random() * Math.PI * 2,
             curlSpeed: Math.random() * 0.08 + 0.03 // Curl wind strength
@@ -67,10 +68,11 @@ document.querySelectorAll('.social-btn, .book-section h2').forEach(el => {
     });
 });
 
-setInterval(createAmbientParticle, 500);
+// Further decreased spawn rate
+setInterval(createAmbientParticle, 700);
 
 function animate() {
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.2)'; // Strong fade — no ghosts
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.25)'; // Even stronger fade for no sticking
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     particles.forEach((p, i) => {
@@ -85,16 +87,48 @@ function animate() {
         }
 
         if (p.type === 'burst') {
-            // Curl wind force — swirling motion
+            // Curl wind force
             p.curlAngle += p.curlSpeed;
             p.speedX += Math.cos(p.curlAngle) * 0.3;
             p.speedY += Math.sin(p.curlAngle) * 0.3;
+
+            // Fractal branching: Occasionally spawn children for geometric fractal effect
+            if (p.life % 50 === 0 && p.life > 80 && Math.random() > 0.6) {
+                // Spawn 2 children at +/- 45 degrees from current direction
+                const childAngle1 = Math.atan2(p.speedY, p.speedX) + Math.PI / 4;
+                const childAngle2 = Math.atan2(p.speedY, p.speedX) - Math.PI / 4;
+                const childSpeed = Math.sqrt(p.speedX**2 + p.speedY**2) * 0.7; // Slower children
+                particles.push({
+                    x: p.x,
+                    y: p.y,
+                    size: p.size * 0.7,
+                    speedX: Math.cos(childAngle1) * childSpeed,
+                    speedY: Math.sin(childAngle1) * childSpeed,
+                    color: p.color,
+                    life: p.life * 0.8,
+                    type: 'burst',
+                    curlAngle: p.curlAngle,
+                    curlSpeed: p.curlSpeed * 0.8
+                });
+                particles.push({
+                    x: p.x,
+                    y: p.y,
+                    size: p.size * 0.7,
+                    speedX: Math.cos(childAngle2) * childSpeed,
+                    speedY: Math.sin(childAngle2) * childSpeed,
+                    color: p.color,
+                    life: p.life * 0.8,
+                    type: 'burst',
+                    curlAngle: p.curlAngle,
+                    curlSpeed: p.curlSpeed * 0.8
+                });
+            }
         }
 
         p.x += p.speedX;
         p.y += p.speedY;
         p.life--;
-        p.size *= 0.96; // Slow shrink for longer trails
+        p.size *= 0.95; // Slower shrink for longer visibility
 
         // Wrap
         if (p.x < -20) p.x = canvas.width + 20;
@@ -102,10 +136,10 @@ function animate() {
         if (p.y < -20) p.y = canvas.height + 20;
         if (p.y > canvas.height + 20) p.y = -20;
 
-        const maxLife = p.type === 'ambient' ? 600 : 200;
+        const maxLife = p.type === 'ambient' ? 900 : 250; // Longer max for slower alpha decay
         const alpha = p.life / maxLife;
 
-        if (p.life <= 0 || alpha < 0.05 || p.size <= 0.5) {
+        if (p.life <= 0 || alpha < 0.02 || p.size <= 0.3) {
             particles.splice(i, 1);
             return;
         }
@@ -113,7 +147,7 @@ function animate() {
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
         ctx.fillStyle = p.color;
-        ctx.shadowBlur = 20;
+        ctx.shadowBlur = 25;
         ctx.shadowColor = p.color;
         ctx.globalAlpha = alpha;
         ctx.fill();
@@ -122,7 +156,7 @@ function animate() {
     ctx.shadowBlur = 0;
     ctx.globalAlpha = 1;
 
-    if (particles.length > 1000) particles.splice(0, 200);
+    if (particles.length > 1200) particles.splice(0, 300);
 
     requestAnimationFrame(animate);
 }
