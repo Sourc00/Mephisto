@@ -12,36 +12,35 @@ window.addEventListener('resize', () => {
 let particles = [];
 let mouse = { x: 0, y: 0 };
 
-// More frequent spawns + longer life for richer background
+// Increased spawn rate for more ambient particles (every 200ms now)
 function createAmbientParticle() {
     particles.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
-        size: Math.random() * 4 + 2, // Slightly larger
+        size: Math.random() * 3 + 1,
         speedX: Math.random() * 1 - 0.5,
         speedY: Math.random() * 1 - 0.5,
         color: Math.random() > 0.5 ? '#ff4500' : '#ff8c00',
-        life: 1200 + Math.random() * 800, // ~20-30 seconds
+        life: 1200 + Math.random() * 600, // 3x longer life → avg ~1500 frames
         type: 'ambient'
     });
 }
 
-// Fewer particles per interaction for elegant trails
-function createBurst(x, y, intensity = 8) {
+function createBurst(x, y, intensity = 10) { // Reduced intensity for fewer cursor particles
     for (let i = 0; i < intensity; i++) {
         const angle = Math.random() * Math.PI * 2;
-        const speed = Math.random() * 6 + 3;
+        const speed = Math.random() * 8 + 4;
         particles.push({
             x: x,
             y: y,
-            size: Math.random() * 12 + 6,
+            size: Math.random() * 10 + 5,
             speedX: Math.cos(angle) * speed,
             speedY: Math.sin(angle) * speed,
             color: Math.random() > 0.3 ? '#ff4500' : '#ff2200',
-            life: 600 + Math.random() * 600, // ~10-20 seconds long decay
+            life: 360 + Math.random() * 240, // 3x longer decay ~9-15 seconds avg
             type: 'burst',
             curlAngle: Math.random() * Math.PI * 2,
-            curlSpeed: Math.random() * 0.1 + 0.05 // Stronger curl
+            curlSpeed: Math.random() * 0.08 + 0.03 // Curl wind strength
         });
     }
 }
@@ -50,7 +49,7 @@ function handleInteraction(e) {
     const rect = canvas.getBoundingClientRect();
     mouse.x = e.clientX || (e.touches ? e.touches[0].clientX - rect.left : 0);
     mouse.y = e.clientY || (e.touches ? e.touches[0].clientY - rect.top : 0);
-    createBurst(mouse.x, mouse.y, 8);
+    createBurst(mouse.x, mouse.y, 10); // Fewer for cursor trail
 }
 
 window.addEventListener('mousemove', handleInteraction);
@@ -60,20 +59,20 @@ window.addEventListener('touchstart', handleInteraction, { passive: true });
 document.querySelectorAll('.social-btn, .book-section h2').forEach(el => {
     el.addEventListener('mouseenter', (e) => {
         const rect = el.getBoundingClientRect();
-        createBurst(rect.left + rect.width / 2, rect.top + rect.height / 2, 12);
+        createBurst(rect.left + rect.width / 2, rect.top + rect.height / 2, 15); // Slightly reduced for buttons too
     });
     el.addEventListener('touchstart', (e) => {
         const rect = el.getBoundingClientRect();
-        createBurst(rect.left + rect.width / 2, rect.top + rect.height / 2, 12);
+        createBurst(rect.left + rect.width / 2, rect.top + rect.height / 2, 15);
         e.preventDefault();
     });
 });
 
-// More background particles
-setInterval(createAmbientParticle, 100);
+// Increased ambient spawn rate → more background particles
+setInterval(createAmbientParticle, 200); // Was 500 → now more frequent
 
 function animate() {
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.2)'; // Strong fade — clean vanishing
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.15)'; // Balanced fade for clean vanishing
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     particles.forEach((p, i) => {
@@ -88,39 +87,40 @@ function animate() {
         }
 
         if (p.type === 'burst') {
-            // Stronger swirling curl
+            // Curl wind force — swirling motion
             p.curlAngle += p.curlSpeed;
-            p.speedX += Math.cos(p.curlAngle) * 0.4;
-            p.speedY += Math.sin(p.curlAngle) * 0.4;
+            p.speedX += Math.cos(p.curlAngle) * 0.3;
+            p.speedY += Math.sin(p.curlAngle) * 0.3;
 
-            // More frequent fractal branching for geometric splitting
-            if (p.life % 60 === 0 && p.life > 200 && Math.random() > 0.4) {
-                const childAngle1 = Math.atan2(p.speedY, p.speedX) + Math.PI / 6; // Tighter branches
-                const childAngle2 = Math.atan2(p.speedY, p.speedX) - Math.PI / 6;
-                const childSpeed = Math.sqrt(p.speedX**2 + p.speedY**2) * 0.75;
+            // Fractal branching: Occasionally spawn children for geometric fractal effect
+            if (p.life % 80 === 0 && p.life > 150 && Math.random() > 0.5) {
+                // Spawn 2 children at +/- 45 degrees
+                const childAngle1 = Math.atan2(p.speedY, p.speedX) + Math.PI / 4;
+                const childAngle2 = Math.atan2(p.speedY, p.speedX) - Math.PI / 4;
+                const childSpeed = Math.sqrt(p.speedX**2 + p.speedY**2) * 0.7;
                 particles.push({
                     x: p.x,
                     y: p.y,
-                    size: p.size * 0.6,
+                    size: p.size * 0.7,
                     speedX: Math.cos(childAngle1) * childSpeed,
                     speedY: Math.sin(childAngle1) * childSpeed,
                     color: p.color,
-                    life: p.life * 0.85,
+                    life: p.life * 0.8,
                     type: 'burst',
                     curlAngle: p.curlAngle,
-                    curlSpeed: p.curlSpeed * 0.9
+                    curlSpeed: p.curlSpeed * 0.8
                 });
                 particles.push({
                     x: p.x,
                     y: p.y,
-                    size: p.size * 0.6,
+                    size: p.size * 0.7,
                     speedX: Math.cos(childAngle2) * childSpeed,
                     speedY: Math.sin(childAngle2) * childSpeed,
                     color: p.color,
-                    life: p.life * 0.85,
+                    life: p.life * 0.8,
                     type: 'burst',
                     curlAngle: p.curlAngle,
-                    curlSpeed: p.curlSpeed * 0.9
+                    curlSpeed: p.curlSpeed * 0.8
                 });
             }
         }
@@ -128,18 +128,18 @@ function animate() {
         p.x += p.speedX;
         p.y += p.speedY;
         p.life--;
-        p.size *= 0.96; // Very slow shrink
+        p.size *= 0.95; // Slow shrink for longer visibility
 
         // Wrap
-        if (p.x < -30) p.x = canvas.width + 30;
-        if (p.x > canvas.width + 30) p.x = -30;
-        if (p.y < -30) p.y = canvas.height + 30;
-        if (p.y > canvas.height + 30) p.y = -30;
+        if (p.x < -20) p.x = canvas.width + 20;
+        if (p.x > canvas.width + 20) p.x = -20;
+        if (p.y < -20) p.y = canvas.height + 20;
+        if (p.y > canvas.height + 20) p.y = -20;
 
-        const maxLife = p.type === 'ambient' ? 2000 : 1200;
+        const maxLife = p.type === 'ambient' ? 1800 : 600; // 3x longer alpha decay
         const alpha = p.life / maxLife;
 
-        if (p.life <= 0 || alpha < 0.01 || p.size <= 0.5) {
+        if (p.life <= 0 || alpha < 0.02 || p.size <= 0.3) {
             particles.splice(i, 1);
             return;
         }
@@ -147,7 +147,7 @@ function animate() {
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
         ctx.fillStyle = p.color;
-        ctx.shadowBlur = 30;
+        ctx.shadowBlur = 25;
         ctx.shadowColor = p.color;
         ctx.globalAlpha = alpha;
         ctx.fill();
@@ -156,9 +156,10 @@ function animate() {
     ctx.shadowBlur = 0;
     ctx.globalAlpha = 1;
 
-    if (particles.length > 1500) particles.splice(0, 400);
+    if (particles.length > 1200) particles.splice(0, 300);
 
     requestAnimationFrame(animate);
 }
 
 animate();
+
