@@ -73,18 +73,27 @@ h1 {
     font-size: 2.2rem;
     color: #ff4500;
     text-decoration: none;
-    padding: 0.5rem 1.5rem;
+    padding: 1rem 2rem; /* Increased padding — bigger tappable area */
     border: 2px solid #ff4500;
-    border-radius: 8px;
+    border-radius: 12px; /* Slightly rounder to match glow */
     text-shadow: 0 0 20px #ff4500;
     box-shadow: 0 0 20px rgba(255, 69, 0, 0.5);
     transition: all 0.3s ease;
     user-select: none;
     cursor: pointer;
-    pointer-events: auto; /* Ensures clicks/taps */
+    pointer-events: auto;
     touch-action: manipulation;
+    background: rgba(255, 69, 0, 0.05); /* Subtle transparent bg — expands touch target */
+    display: inline-block; /* Ensures padding works fully */
 }
 
+/* Mobile tweak for even bigger taps */
+@media (max-width: 768px) {
+    .social-btn {
+        font-size: 1.9rem;
+        padding: 1rem 2rem; /* Same bigger padding on mobile */
+    }
+}
 .social-btn:hover, .social-btn:active {
     color: #fff;
     background: rgba(255, 69, 0, 0.2);
@@ -138,3 +147,4 @@ h1 {
         font-size: 1.4rem;
     }
 }
+
