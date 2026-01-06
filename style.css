@@ -17,7 +17,7 @@ html, body {
     width: 100%;
     height: 100%;
     pointer-events: none;
-    touch-action: none; /* Key fix: lets touches pass through while keeping interaction */
+    touch-action: manipulation; /* Allows touch events to pass through while keeping particle trails */
     z-index: 1;
 }
 
@@ -82,6 +82,8 @@ h1 {
     user-select: none;
     cursor: pointer;
     pointer-events: auto;
+    touch-action: manipulation; /* Ensures reliable taps */
+    z-index: 3; /* Above canvas */
 }
 
 .social-btn:hover, .social-btn:active {
@@ -105,6 +107,7 @@ h1 {
     text-shadow: 0 0 30px #ff4500;
     cursor: pointer;
     transition: all 0.3s ease;
+    z-index: 3;
 }
 
 .book-section h2:hover, .book-section h2:active {
@@ -112,11 +115,11 @@ h1 {
     transform: scale(1.1);
 }
 
-/* MOBILE: Tighter layout to prevent cutoff */
+/* MOBILE: Tighter layout */
 @media (max-width: 768px) {
     main {
-        padding-top: 10vh; /* More room at bottom */
-        gap: 3rem;
+        padding-top: 10vh;
+        gap: 2.5rem;
     }
 
     h1 {
