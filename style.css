@@ -17,7 +17,7 @@ html, body {
     width: 100%;
     height: 100%;
     pointer-events: none;
-    z-index: 1;
+    z-index: -1; /* Moved to background so it NEVER blocks touches */
 }
 
 main {
@@ -52,7 +52,7 @@ h1 {
     letter-spacing: 0.15em;
 }
 
-/* Normal sans-serif font for email only */
+/* Normal sans-serif for email */
 .book-section p {
     font-family: 'Arial', Helvetica, sans-serif;
     font-size: 1.6rem;
@@ -79,8 +79,8 @@ h1 {
     box-shadow: 0 0 20px rgba(255, 69, 0, 0.5);
     transition: all 0.3s ease;
     user-select: none;
-    cursor: pointer; /* Ensures clickable */
-    pointer-events: auto; /* Fixes touch/click on mobile */
+    cursor: pointer;
+    pointer-events: auto; /* Ensures clickable */
 }
 
 .social-btn:hover, .social-btn:active {
@@ -111,12 +111,12 @@ h1 {
     transform: scale(1.1);
 }
 
-/* MOBILE ONLY FIXES */
+/* MOBILE ONLY OPTIMIZATIONS */
 @media (max-width: 768px) {
     main {
-        padding-top: 8vh; /* Brings everything up a bit for more bottom room */
-        gap: 3rem; /* Slightly less gap */
-        justify-content: space-between; /* Ensures booking stays visible at bottom */
+        padding-top: 8vh; /* Brings everything up */
+        gap: 2.5rem; /* Tighter spacing */
+        justify-content: space-around; /* Distributes space, keeps booking visible */
     }
 
     h1 {
@@ -124,8 +124,8 @@ h1 {
     }
 
     .social-btn {
-        font-size: 1.8rem; /* A hair smaller on mobile */
-        padding: 0.4rem 1rem; /* Smaller padding */
+        font-size: 1.8rem; /* A hair smaller */
+        padding: 0.4rem 1.2rem;
     }
 
     .book-section h2 {
