@@ -12,22 +12,22 @@ window.addEventListener('resize', () => {
 let particles = [];
 let mouse = { x: 0, y: 0 };
 
-// More frequent spawns + longer life for richer background
+// Increased spawn rate for more background particles (every 30ms)
 function createAmbientParticle() {
     particles.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
-        size: Math.random() * 4 + 2, // Slightly larger
+        size: Math.random() * 4 + 2,
         speedX: Math.random() * 1 - 0.5,
         speedY: Math.random() * 1 - 0.5,
         color: Math.random() > 0.5 ? '#ff4500' : '#ff8c00',
-        life: 1200 + Math.random() * 800, // ~20-30 seconds
+        life: 3600 + Math.random() * 2400, // 3x longer ~60-100 seconds
         type: 'ambient'
     });
 }
 
-// Fewer particles per interaction for elegant trails
-function createBurst(x, y, intensity = 8) {
+// Reduced cursor particles to 3 for minimal trail
+function createBurst(x, y, intensity = 3) {
     for (let i = 0; i < intensity; i++) {
         const angle = Math.random() * Math.PI * 2;
         const speed = Math.random() * 6 + 3;
@@ -38,7 +38,7 @@ function createBurst(x, y, intensity = 8) {
             speedX: Math.cos(angle) * speed,
             speedY: Math.sin(angle) * speed,
             color: Math.random() > 0.3 ? '#ff4500' : '#ff2200',
-            life: 600 + Math.random() * 600, // ~10-20 seconds long decay
+            life: 3600 + Math.random() * 3600, // 3x longer ~60-120 seconds
             type: 'burst',
             curlAngle: Math.random() * Math.PI * 2,
             curlSpeed: Math.random() * 0.1 + 0.05 // Stronger curl
@@ -50,7 +50,7 @@ function handleInteraction(e) {
     const rect = canvas.getBoundingClientRect();
     mouse.x = e.clientX || (e.touches ? e.touches[0].clientX - rect.left : 0);
     mouse.y = e.clientY || (e.touches ? e.touches[0].clientY - rect.top : 0);
-    createBurst(mouse.x, mouse.y, 8);
+    createBurst(mouse.x, mouse.y, 3); // Fewer for cursor
 }
 
 window.addEventListener('mousemove', handleInteraction);
@@ -60,20 +60,20 @@ window.addEventListener('touchstart', handleInteraction, { passive: true });
 document.querySelectorAll('.social-btn, .book-section h2').forEach(el => {
     el.addEventListener('mouseenter', (e) => {
         const rect = el.getBoundingClientRect();
-        createBurst(rect.left + rect.width / 2, rect.top + rect.height / 2, 12);
+        createBurst(rect.left + rect.width / 2, rect.top + rect.height / 2, 6); // Reduced for buttons
     });
     el.addEventListener('touchstart', (e) => {
         const rect = el.getBoundingClientRect();
-        createBurst(rect.left + rect.width / 2, rect.top + rect.height / 2, 12);
+        createBurst(rect.left + rect.width / 2, rect.top + rect.height / 2, 6);
         e.preventDefault();
     });
 });
 
-// More background particles
-setInterval(createAmbientParticle, 100);
+// Increased background spawn rate → more particles
+setInterval(createAmbientParticle, 30);
 
 function animate() {
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.2)'; // Strong fade — clean vanishing
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.25)'; // Stronger fade for no sticking
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     particles.forEach((p, i) => {
@@ -128,7 +128,7 @@ function animate() {
         p.x += p.speedX;
         p.y += p.speedY;
         p.life--;
-        p.size *= 0.96; // Very slow shrink
+        p.size *= 0.94; // Even slower shrink for longer visibility
 
         // Wrap
         if (p.x < -30) p.x = canvas.width + 30;
@@ -136,7 +136,7 @@ function animate() {
         if (p.y < -30) p.y = canvas.height + 30;
         if (p.y > canvas.height + 30) p.y = -30;
 
-        const maxLife = p.type === 'ambient' ? 2000 : 1200;
+        const maxLife = p.type === 'ambient' ? 6000 : 7200; // Adjusted for 3x decay
         const alpha = p.life / maxLife;
 
         if (p.life <= 0 || alpha < 0.01 || p.size <= 0.5) {
@@ -156,10 +156,9 @@ function animate() {
     ctx.shadowBlur = 0;
     ctx.globalAlpha = 1;
 
-    if (particles.length > 1500) particles.splice(0, 400);
+    if (particles.length > 2500) particles.splice(0, 500); // Higher cap for denser background
 
     requestAnimationFrame(animate);
 }
 
 animate();
-
