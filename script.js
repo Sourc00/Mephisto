@@ -47,7 +47,7 @@ function handleInteraction(e) {
 window.addEventListener('mousemove', handleInteraction);
 window.addEventListener('touchmove', handleInteraction, { passive: true });
 window.addEventListener('touchstart', handleInteraction, { passive: true });
-document.querySelectorAll('.social-btn, .book-section h2').forEach(el => {
+document.querySelectorAll('.social-btn, .book-section h2, .book-section a').forEach(el => {
     el.addEventListener('mouseenter', (e) => {
         const rect = el.getBoundingClientRect();
         createBurst(rect.left + rect.width / 2, rect.top + rect.height / 2, 6);
