@@ -37,7 +37,7 @@ main {
 /* Dripping horror only on header */
 h1 {
     font-family: 'Nosifer', cursive;
-    font-size: 9vw; /* Slightly smaller than 10vw */
+    font-size: 9vw;
     color: #ff4500;
     text-transform: uppercase;
     letter-spacing: 0.1em;
@@ -52,13 +52,13 @@ h1 {
     letter-spacing: 0.15em;
 }
 
-/* Normal sans-serif font for email only – readable and clean */
+/* Normal sans-serif font for email only */
 .book-section p {
     font-family: 'Arial', Helvetica, sans-serif;
-    font-size: 1.6rem; /* Slightly smaller */
+    font-size: 1.6rem;
     color: #ff4500;
     text-shadow: 0 0 20px #ff4500;
-    text-transform: none; /* Keeps your exact capitalization */
+    text-transform: none;
 }
 
 .social-buttons {
@@ -69,7 +69,7 @@ h1 {
 }
 
 .social-btn {
-    font-size: 2.2rem; /* Slightly smaller for better balance */
+    font-size: 2.2rem;
     color: #ff4500;
     text-decoration: none;
     padding: 0.5rem 1.5rem;
@@ -79,6 +79,8 @@ h1 {
     box-shadow: 0 0 20px rgba(255, 69, 0, 0.5);
     transition: all 0.3s ease;
     user-select: none;
+    cursor: pointer; /* Ensures clickable */
+    pointer-events: auto; /* Fixes touch/click on mobile */
 }
 
 .social-btn:hover, .social-btn:active {
@@ -97,7 +99,7 @@ h1 {
 }
 
 .book-section h2 {
-    font-size: 2.3rem; /* Slightly smaller */
+    font-size: 2.3rem;
     color: #ff4500;
     text-shadow: 0 0 30px #ff4500;
     cursor: pointer;
@@ -109,18 +111,27 @@ h1 {
     transform: scale(1.1);
 }
 
+/* MOBILE ONLY FIXES */
 @media (max-width: 768px) {
+    main {
+        padding-top: 8vh; /* Brings everything up a bit for more bottom room */
+        gap: 3rem; /* Slightly less gap */
+        justify-content: space-between; /* Ensures booking stays visible at bottom */
+    }
+
     h1 {
-        font-size: 7.5vw;
-        padding-top: 5vh;
+        font-size: 8vw;
     }
+
     .social-btn {
-        font-size: 1.7rem;
-        padding: 0.4rem 1rem;
+        font-size: 1.8rem; /* A hair smaller on mobile */
+        padding: 0.4rem 1rem; /* Smaller padding */
     }
+
     .book-section h2 {
-        font-size: 1.9rem;
+        font-size: 2rem;
     }
+
     .book-section p {
         font-size: 1.4rem;
     }
